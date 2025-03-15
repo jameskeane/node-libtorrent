@@ -5,7 +5,9 @@
       "product_name": "libtorrent",
       "sources": [
           "libtorrent.cc",
-          "src/session.cc"
+          "src/session.cc",
+          "src/alert.cc",
+          "src/entry.cc"
         ],
 
       "cflags_cc": [

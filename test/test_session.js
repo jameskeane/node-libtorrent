@@ -41,7 +41,6 @@ describe("libtorrent.session", () => {
         });
 
         session.set_alert_notify(() => {
-            console.log(session.pop_alerts());
             done();
             session.abort();
         });

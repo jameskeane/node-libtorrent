@@ -1,4 +1,6 @@
 #include "session.h"
+#include "alert.h"
+#include "entry.h"
 
 #include <libtorrent/session.hpp>
 using namespace lt;
@@ -59,6 +61,8 @@ Napi::Object Session::Init(Napi::Env env, Napi::Object exports) {
         InstanceMethod("set_alert_notify", &Session::SetAlertNotify),
         InstanceMethod("pop_alerts", &Session::PopAlerts),
         InstanceMethod("abort", &Session::Abort),
+        InstanceMethod("dht_get_immutable_item", &Session::DhtGetImmutableItem),
+        InstanceMethod("dht_put_immutable_item", &Session::DhtPutImmutableItem),
     });
 
     constructor = Napi::Persistent(func);
@@ -129,7 +133,7 @@ Napi::Value Session::SetAlertNotify(const Napi::CallbackInfo& info) {
             // Cleanup if needed
         }
     );
-    
+
     // Set the alert notify function on the session
     session_->set_alert_notify([this]() {
         // Execute the callback from the JavaScript side
@@ -154,24 +158,61 @@ Napi::Value Session::PopAlerts(const Napi::CallbackInfo& info) {
     // Convert each alert to a JavaScript object
     for (size_t i = 0; i < alerts.size(); ++i) {
         lt::alert* alert = alerts[i];
-        
-        Napi::Object alertObj = Napi::Object::New(env);
-        
-        // Add basic alert properties
-        alertObj.Set("message", Napi::String::New(env, alert->message()));
-        alertObj.Set("type", Napi::Number::New(env, alert->type()));
-        alertObj.Set("what", Napi::String::New(env, alert->what()));
-        alertObj.Set("category", Napi::Number::New(env, alert->category()));
 
         // Set this alert in the result array
-        result.Set(i, alertObj);
+        result.Set(i, alert_to_js(env, alert));
     }
 
     return result;
 }
 
 
-Napi::Object InitSession(Napi::Env env, Napi::Object exports) {
+Napi::Value Session::DhtGetImmutableItem(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+
+    if (info.Length() < 1 || !info[0].IsBuffer()) {
+        Napi::TypeError::New(env, "Expected a buffer containing SHA1 hash as first argument").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+
+    // Get the buffer containing the SHA1 hash
+    Napi::Buffer<char> hashBuffer = info[0].As<Napi::Buffer<char>>();
+    if (hashBuffer.Length() != 20) {  // SHA1 hash is 20 bytes
+        Napi::TypeError::New(env, "Hash buffer must be exactly 20 bytes").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+
+    // Convert to lt::sha1_hash
+    lt::sha1_hash target_hash(hashBuffer.Data());
+
+    // Initiate the DHT get operation
+    session_->dht_get_item(target_hash);
+    return env.Undefined();
+}
+
+Napi::Value Session::DhtPutImmutableItem(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+
+    if (info.Length() < 1) {
+        Napi::TypeError::New(env, "Expected a value as the first argument").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+
+    // Convert the JS value to a libtorrent entry
+    lt::entry e = ValueToEntry(info[0]);
+    if ( e.type() == lt::entry::undefined_t ) {
+        Napi::TypeError::New(env, "Failed to convert value to entry").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+
+    // Put the immutable item to DHT
+    lt::sha1_hash hash = session_->dht_put_item(e);
+
+    // Return sha1 hash of the item as a Buffer
+    return Napi::Buffer<char>::Copy(env, hash.data(), hash.size());
+}
+
+Napi::Object bind_session(Napi::Env env, Napi::Object exports) {
     return Session::Init(env, exports);
 }
 

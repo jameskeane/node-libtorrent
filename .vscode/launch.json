@@ -8,7 +8,7 @@
        "preLaunchTask": "build-dev",
        "program": "/home/jjk/.nvm/versions/node/v22.14.0/bin/node",
        "args": [
-          "${workspaceFolder}/test/test_session.js"
+          "--test"
        ]
     }]
   }

@@ -2,7 +2,7 @@
 
 #include <libtorrent/session.hpp>
 
-Napi::Object InitSession(Napi::Env env, Napi::Object exports);
+Napi::Object bind_session(Napi::Env env, Napi::Object exports);
 
 class Session : public Napi::ObjectWrap<Session> {
     public:
@@ -15,6 +15,8 @@ class Session : public Napi::ObjectWrap<Session> {
     Napi::Value SetAlertNotify(const Napi::CallbackInfo& info);
     Napi::Value PopAlerts(const Napi::CallbackInfo& info);
     Napi::Value Abort(const Napi::CallbackInfo& info);
+    Napi::Value DhtPutImmutableItem(const Napi::CallbackInfo& info);
+    Napi::Value DhtGetImmutableItem(const Napi::CallbackInfo& info);
 
     private:
         libtorrent::session* session_;

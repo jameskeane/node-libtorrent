@@ -10,7 +10,7 @@
     "scripts": {
         "install": "node-gyp rebuild",
         "build": "node-gyp rebuild",
-        "test": "node-gyp build --debug && node test/test_session.js"
+        "test": "node-gyp build --debug && node --test"
     },
     "dependencies": {
         "bindings": "~1.5.0",
