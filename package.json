@@ -1,0 +1,20 @@
+{
+    "name": "node-libtorrent-rb",
+    "version": "0.0.1",
+    "description": "Node.js bindings for libtorrent-rasterbar",
+    "main": "libtorrent.js",
+    "gypfile": true,
+    "engines": {
+        "node": "~10 >=10.20 || >=12.17"
+    },
+    "scripts": {
+        "install": "node-gyp rebuild",
+        "build": "node-gyp rebuild",
+        "test": "node-gyp build --debug && node test/test_session.js"
+    },
+    "dependencies": {
+        "bindings": "~1.5.0",
+        "node-addon-api": "^8.1.0",
+        "node-gyp": "^11.1.0"
+    }
+}
