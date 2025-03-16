@@ -2,19 +2,31 @@
     "name": "@pulseapp/node-libtorrent",
     "version": "0.0.2",
     "description": "Node.js bindings for libtorrent-rasterbar",
-    "main": "libtorrent.js",
+    "main": "index.js",
     "gypfile": true,
     "engines": {
         "node": "~10 >=10.20 || >=12.17"
     },
+    "binary": {
+        "napi_versions": [3]
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/jameskeane/node-libtorrent.git"
+    },
     "scripts": {
-        "install": "node-gyp rebuild",
+        "install": "node-gyp-build",
         "build": "node-gyp rebuild",
         "test": "node-gyp build --debug && node --test"
     },
+    "author": "jameskeane",
+    "license": "MIT",
+    "bugs": {
+      "url": "https://github.com/jameskeane/node-libtorrent/issues"
+    },
+    "homepage": "https://github.com/jameskeane/node-libtorrent",
     "dependencies": {
-        "bindings": "~1.5.0",
         "node-addon-api": "^8.1.0",
-        "node-gyp": "^11.1.0"
+        "node-gyp-build": "^4.8.4"
     }
 }
