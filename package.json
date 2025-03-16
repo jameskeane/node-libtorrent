@@ -1,6 +1,6 @@
 {
-    "name": "node-libtorrent-rb",
-    "version": "0.0.1",
+    "name": "@pulseapp/node-libtorrent",
+    "version": "0.0.2",
     "description": "Node.js bindings for libtorrent-rasterbar",
     "main": "libtorrent.js",
     "gypfile": true,
