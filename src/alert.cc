@@ -33,7 +33,7 @@ Napi::Value alert_to_js(const Napi::Env& env, const lt::alert* a) {
         case lt::add_torrent_alert::alert_type: {
             auto* ata = static_cast<const lt::add_torrent_alert*>(a);
             auto info = ata->params.info_hashes.get_best();
-            obj.Set("info_hash", Napi::Buffer<char>::Copy(env, info.data(), info.size()));
+            obj.Set("info_hashes", Napi::Buffer<char>::Copy(env, info.data(), info.size()));
             obj.Set("name", Napi::String::New(env, ata->params.name));
             obj.Set("save_path", Napi::String::New(env, ata->params.save_path));
             obj.Set("error_code", Napi::Number::New(env, ata->error.value()));
