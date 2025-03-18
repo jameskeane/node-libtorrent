@@ -55,6 +55,11 @@ Napi::Value alert_to_js(const Napi::Env& env, const lt::alert* a) {
         }
 
         case lt::dht_bootstrap_alert::alert_type: break;
+        case lt::dht_error_alert::alert_type: {
+            auto* dea = static_cast<const lt::dht_error_alert*>(a);
+            obj.Set("error_code", Napi::Number::New(env, dea->error.value()));
+            break;
+        }
         case lt::dht_put_alert::alert_type: {
             auto* dpa = static_cast<const lt::dht_put_alert*>(a);
             obj.Set("target", Napi::Buffer<char>::Copy(env, dpa->target.data(), dpa->target.size()));
@@ -71,6 +76,22 @@ Napi::Value alert_to_js(const Napi::Env& env, const lt::alert* a) {
 
             try {
                 obj.Set("item", EntryToValue(env, dia->item));
+            } catch (const std::exception& e) {
+                obj.Set("item_error", Napi::String::New(env, e.what()));
+            }
+            break;
+        }
+
+        case lt::dht_mutable_item_alert::alert_type: {
+            auto* dmia = static_cast<const lt::dht_mutable_item_alert*>(a);
+            obj.Set("key", Napi::Buffer<char>::Copy(env, dmia->key.data(), dmia->key.size()));
+            obj.Set("signature", Napi::Buffer<char>::Copy(env, dmia->signature.data(), dmia->signature.size()));
+            obj.Set("seq", Napi::Number::New(env, dmia->seq));
+            obj.Set("salt", Napi::String::New(env, dmia->salt));
+            obj.Set("authoritative", Napi::Boolean::New(env, dmia->authoritative));
+
+            try {
+                obj.Set("item", EntryToValue(env, dmia->item));
             } catch (const std::exception& e) {
                 obj.Set("item_error", Napi::String::New(env, e.what()));
             }

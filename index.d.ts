@@ -40,7 +40,7 @@ declare module '@pulseapp/node-libtorrent' {
         listen_interfaces?: string,
         enable_dht?: boolean,
         alert_mask?: number,
-        dht_bootstrap_nodes?: string[],
+        dht_bootstrap_nodes?: string,
         dht_announce_interval?: number,
         dht_max_peers?: number,
         dht_max_torrents?: number,
