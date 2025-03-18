@@ -30,6 +30,30 @@ Napi::Value alert_to_js(const Napi::Env& env, const lt::alert* a) {
             break;
         }
 
+        case lt::add_torrent_alert::alert_type: {
+            auto* ata = static_cast<const lt::add_torrent_alert*>(a);
+            auto info = ata->params.info_hashes.get_best();
+            obj.Set("info_hash", Napi::Buffer<char>::Copy(env, info.data(), info.size()));
+            obj.Set("name", Napi::String::New(env, ata->params.name));
+            obj.Set("save_path", Napi::String::New(env, ata->params.save_path));
+            obj.Set("error_code", Napi::Number::New(env, ata->error.value()));
+            obj.Set("error_message", Napi::String::New(env, ata->error.message()));
+            break;
+        }
+        case lt::torrent_need_cert_alert::alert_type: {
+            auto* tnca = static_cast<const lt::torrent_need_cert_alert*>(a);
+            obj.Set("name", Napi::String::New(env, tnca->torrent_name()));
+
+            // todo wrap the torrent handle and pass it along
+            break;
+        }
+        case lt::torrent_error_alert::alert_type: {
+            auto* tea = static_cast<const lt::torrent_error_alert*>(a);
+            obj.Set("error_code", Napi::Number::New(env, tea->error.value()));
+            obj.Set("error_message", Napi::String::New(env, tea->error.message()));
+            break;
+        }
+
         case lt::dht_bootstrap_alert::alert_type: break;
         case lt::dht_put_alert::alert_type: {
             auto* dpa = static_cast<const lt::dht_put_alert*>(a);

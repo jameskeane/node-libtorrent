@@ -15,6 +15,9 @@ class Session : public Napi::ObjectWrap<Session> {
     Napi::Value SetAlertNotify(const Napi::CallbackInfo& info);
     Napi::Value PopAlerts(const Napi::CallbackInfo& info);
     Napi::Value Abort(const Napi::CallbackInfo& info);
+
+    Napi::Value AsyncAddTorrent(const Napi::CallbackInfo& info);
+
     Napi::Value DhtPutImmutableItem(const Napi::CallbackInfo& info);
     Napi::Value DhtGetImmutableItem(const Napi::CallbackInfo& info);
 

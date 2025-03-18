@@ -61,6 +61,7 @@ Napi::Object Session::Init(Napi::Env env, Napi::Object exports) {
         InstanceMethod("set_alert_notify", &Session::SetAlertNotify),
         InstanceMethod("pop_alerts", &Session::PopAlerts),
         InstanceMethod("abort", &Session::Abort),
+        InstanceMethod("async_add_torrent", &Session::AsyncAddTorrent),
         InstanceMethod("dht_get_immutable_item", &Session::DhtGetImmutableItem),
         InstanceMethod("dht_put_immutable_item", &Session::DhtPutImmutableItem),
     });
@@ -165,6 +166,68 @@ Napi::Value Session::PopAlerts(const Napi::CallbackInfo& info) {
 
     return result;
 }
+
+
+Napi::Value Session::AsyncAddTorrent(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+
+    if (info.Length() < 1 || !info[0].IsObject()) {
+        Napi::TypeError::New(env, "Expected an object as the first argument").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+
+    // Get the params object from JavaScript
+    Napi::Object torrentParams = info[0].As<Napi::Object>();
+
+    // Create a libtorrent add_torrent_params object
+    lt::add_torrent_params params;
+
+    // Extract properties from the JavaScript object
+    if (torrentParams.Has("save_path") && torrentParams.Get("save_path").IsString()) {
+        params.save_path = torrentParams.Get("save_path").As<Napi::String>().Utf8Value();
+    }
+
+    // Handle ti (torrent info) if provided
+    if (torrentParams.Has("ti") && torrentParams.Get("ti").IsExternal()) {
+        // Assuming ti is an external pointer to a torrent_info object
+        lt::torrent_info* ti = torrentParams.Get("ti").As<Napi::External<lt::torrent_info>>().Data();
+        params.ti = std::shared_ptr<lt::torrent_info>(ti);
+    }
+
+    // Handle info hash
+    if (torrentParams.Has("info_hashes") && torrentParams.Get("info_hashes").IsBuffer()) {
+        Napi::Buffer<char> hashBuffer = torrentParams.Get("info_hashes").As<Napi::Buffer<char>>();
+        if (hashBuffer.Length() == 20) { // SHA1 hash is 20 bytes
+            lt::sha1_hash hash(hashBuffer.Data());
+            params.info_hashes = info_hash_t(hash);
+        }
+        else if (hashBuffer.Length() == 32) { // SHA256 hash is 32 bytes
+            lt::sha256_hash hash(hashBuffer.Data());
+            params.info_hashes = info_hash_t(hash);
+        }
+        else {
+            Napi::TypeError::New(env, "Infohash must be either sha1 or sha256").ThrowAsJavaScriptException();
+            return env.Null();
+        }
+    }
+
+    // Handle name
+    if (torrentParams.Has("name") && torrentParams.Get("name").IsString()) {
+        params.name = torrentParams.Get("name").As<Napi::String>().Utf8Value();
+    }
+
+    // Handle root_certificate
+    if (torrentParams.Has("root_certificate") && torrentParams.Get("root_certificate").IsString()) {
+        params.root_certificate = torrentParams.Get("root_certificate").As<Napi::String>().Utf8Value();
+    }
+
+    // todo add more parameter mappings
+
+    // Add the torrent asynchronously
+    session_->async_add_torrent(params);
+    return env.Undefined();
+}
+
 
 
 Napi::Value Session::DhtGetImmutableItem(const Napi::CallbackInfo& info) {

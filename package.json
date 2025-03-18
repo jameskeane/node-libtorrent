@@ -17,7 +17,8 @@
     "scripts": {
         "install": "node-gyp-build",
         "build": "node-gyp rebuild",
-        "test": "node-gyp build --debug && node --test"
+        "build-dev": "node-gyp rebuild --debug",
+        "test": "node-gyp build --debug && node --force-node-api-uncaught-exceptions-policy=true --test"
     },
     "author": "jameskeane",
     "license": "MIT",
