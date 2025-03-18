@@ -55,7 +55,7 @@ declare module '@pulseapp/node-libtorrent' {
         abort(): void;
         dht_put_immutable_item(item: Entry): Buffer;
         dht_get_immutable_item(target: Buffer): void;
-        add_torrent_async(params: add_torrent_params): void;
+        async_add_torrent(params: add_torrent_params): void;
     }
 
     function session(options: SettingsPack): LtSession;
