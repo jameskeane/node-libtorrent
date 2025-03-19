@@ -55,6 +55,8 @@ declare module '@pulseapp/node-libtorrent' {
         abort(): void;
         dht_put_immutable_item(item: Entry): Buffer;
         dht_get_immutable_item(target: Buffer): void;
+        dht_put_mutable_item(pubKey: Buffer, entry: Entry, sig: Buffer, seq: number, salt?: string): Buffer;
+        dht_get_mutable_item(key: Buffer, salt: string): void;
         async_add_torrent(params: add_torrent_params): void;
     }
 
