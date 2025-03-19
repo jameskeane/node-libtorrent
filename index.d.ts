@@ -23,7 +23,7 @@ declare module '@pulseapp/node-libtorrent' {
 
     interface DHTMutableItemAlert extends GenericAlert {
         what: 'dht_mutable_item';
-        pubKey: Buffer;
+        key: Buffer;
         sig: Buffer;
         seq: number;
         salt: string;

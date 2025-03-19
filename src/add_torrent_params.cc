@@ -19,11 +19,14 @@ Napi::Object add_torrent_params_to_js(Napi::Env env, lt::add_torrent_params para
     // Add ti as external (torrent info)
     if (params.ti) {
         // Create an external wrapper for the torrent_info pointer
-        Napi::External<std::shared_ptr<torrent_info>> tiExternal = 
-            Napi::External<std::shared_ptr<torrent_info>>::New(
-                env, 
-                new std::shared_ptr<torrent_info>(params.ti)
-            );
+        // Create a heap-allocated copy of the torrent_info
+        lt::torrent_info* tiCopy = new lt::torrent_info(*params.ti);
+
+        // Create an external wrapper for the torrent_info pointer with a finalizer to clean up
+        auto tiExternal = Napi::External<lt::torrent_info>::New(env, tiCopy, [](Napi::Env, lt::torrent_info* data) {
+            // todo causes a double free error
+            // delete data; // Clean up the allocated torrent_info when the JS object is garbage collected
+        });
         obj.Set("ti", tiExternal);
     }
     // // Handle trackers
