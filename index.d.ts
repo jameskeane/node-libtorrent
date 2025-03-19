@@ -57,6 +57,11 @@ declare module '@pulseapp/node-libtorrent' {
         dht_max_torrents?: number,
         dht_max_dht_items?: number,
         dht_max_torrent_search_reply?: number,
+        allow_multiple_connections_per_ip?: boolean,
+        enable_natpmp?: boolean,
+        enable_lsd?: boolean,
+        dht_restrict_routing_ips?: boolean,
+        dht_restrict_search_ips?: boolean,
         // todo
     };
 

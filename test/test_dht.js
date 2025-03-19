@@ -3,13 +3,26 @@ const assert = require('node:assert/strict');
 const lt = require('../build/Debug/libtorrent');
 
 
-describe("libtorrent dht functions", () => {
-    it("can put mutable items", (t, done) => {
-        session = lt.session({
-            listen_interfaces: '0.0.0.0:6881',
-            enable_dht: true,
+function createNetwork(numberOfNodes, startPort = 6881) {
+    const nodes = [];
+    for (let i = 0; i < numberOfNodes; i++) {
+        const node = lt.session({
+            listen_interfaces: `127.0.0.1:${startPort+i}`,
+            dht_bootstrap_nodes: `127.0.0.1:${startPort}`, allow_multiple_connections_per_ip: true,
+            enable_natpmp: false, enable_lsd: false,
+            dht_restrict_routing_ips: false, dht_restrict_search_ips: false,
             alert_mask: 0xffffffff,
         });
+        nodes.push(node);
+    }
+    return nodes[nodes.length-1];
+}
+
+
+
+describe("libtorrent dht functions", () => {
+    it("can put mutable items", (t, done) => {
+        session = createNetwork(10);
 
         const value = 'Hello World!';
         const pub = Buffer.from('a196635861b6d574283c5456b43238f3224a91e4c75b5146f649da5961ca90b9', 'hex');
