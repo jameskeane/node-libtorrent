@@ -9,6 +9,7 @@
           "src/alert.cc",
           "src/entry.cc",
           "src/torrent_handle.cc",
+          "src/add_torrent_params.cc",
         ],
 
       "cflags_cc": [

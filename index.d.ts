@@ -75,9 +75,23 @@ declare module '@pulseapp/node-libtorrent' {
         dht_put_mutable_item(pubKey: Buffer, entry: Entry, sig: Buffer, seq: number, salt?: string): Buffer;
         dht_get_mutable_item(key: Buffer, salt: string): void;
         async_add_torrent(params: add_torrent_params): void;
+        async_add_torrent(torrent: Buffer, opt_params: add_torrent_params): void;
     }
 
+    // todo type config
     function session(options: SettingsPack): LtSession;
+
+    type load_torrent_config_t = {
+        max_pieces?: number,
+        max_buffer_size?: number,
+        max_decode_depth?: number,
+        max_decode_tokens?: number,
+    }
+
+    function load_torrent(filename: string): add_torrent_params;
+    function load_torrent(filename: string, cfg: load_torrent_config_t): add_torrent_params;
+    function load_torrent(torrent: Buffer): add_torrent_params;
+    function load_torrent(torrent: Buffer, cfg: load_torrent_config_t): add_torrent_params;
 
     enum storage_mode_t {
         storage_mode_allocate = 0,

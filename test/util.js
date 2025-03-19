@@ -16,4 +16,15 @@ function createNetwork(numberOfNodes, startPort = 6881) {
     return nodes[nodes.length-1];
 }
 
-module.exports = { createNetwork };
+
+function createQuietSession(port = 6881) {
+    const node = lt.session({
+        listen_interfaces: `127.0.0.1:${port}`,
+        dht_bootstrap_nodes: '',
+        enable_natpmp: false, enable_lsd: false, enable_upnp: false, enable_dht: false,
+        alert_mask: 0xffffffff,
+    });
+    return node;
+}
+
+module.exports = { createNetwork, createQuietSession };

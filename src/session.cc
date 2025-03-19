@@ -3,6 +3,7 @@
 #include "entry.h"
 
 #include <libtorrent/session.hpp>
+#include <libtorrent/load_torrent.hpp>
 using namespace lt;
 
 Napi::Value SessionConstructor(const Napi::CallbackInfo& info) {
@@ -173,16 +174,52 @@ Napi::Value Session::PopAlerts(const Napi::CallbackInfo& info) {
 Napi::Value Session::AsyncAddTorrent(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
 
-    if (info.Length() < 1 || !info[0].IsObject()) {
+    // Handle case where a torrent file buffer is provided directly
+    if (info.Length() == 1 && info[0].IsBuffer()) {
+        // Throw an error to indicate this feature is not yet implemented
+        Napi::Error::New(env, "Loading torrent files directly from buffer is not implemented yet").ThrowAsJavaScriptException();
+        return env.Null();
+        // // Get the torrent file buffer
+        // Napi::Buffer<char> torrentBuffer = info[0].As<Napi::Buffer<char>>();
+        
+        // // Convert the buffer to a std::span for load_torrent
+        // lt::span<char const> buffer_span(torrentBuffer.Data(), torrentBuffer.Length());
+
+        // // Load the torrent file and get add_torrent_params
+        // lt::add_torrent_params params = lt::load_torrent_buffer(buffer_span);
+
+        // // Add the torrent asynchronously
+        // session_->async_add_torrent(std::move(params));
+        // return env.Undefined();
+    }
+
+    if (info.Length() < 1 || !(info[0].IsObject() || info[0].IsBuffer())) {
         Napi::TypeError::New(env, "Expected an object as the first argument").ThrowAsJavaScriptException();
         return env.Null();
     }
 
     // Get the params object from JavaScript
-    Napi::Object torrentParams = info[0].As<Napi::Object>();
-
-    // Create a libtorrent add_torrent_params object
+    Napi::Object torrentParams;
     lt::add_torrent_params params;
+    
+    if (info[0].IsBuffer()) {
+        // Get the torrent file buffer
+        Napi::Buffer<char> torrentBuffer = info[0].As<Napi::Buffer<char>>();
+        
+        // Convert the buffer to a std::span for load_torrent
+        lt::span<char const> buffer_span(torrentBuffer.Data(), torrentBuffer.Length());
+
+        // Load the torrent file and get add_torrent_params
+        lt::add_torrent_params params = lt::load_torrent_buffer(buffer_span);
+
+        if (info.Length() > 1) {
+            torrentParams = info[1].As<Napi::Object>();
+        } else {
+            torrentParams = Napi::Object::New(env);
+        }
+    } else {
+        torrentParams = info[0].As<Napi::Object>();
+    }
 
     // Extract properties from the JavaScript object
     if (torrentParams.Has("save_path") && torrentParams.Get("save_path").IsString()) {
