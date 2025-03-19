@@ -1,5 +1,6 @@
 #include "alert.h"
 #include "entry.h"
+#include "torrent_handle.h"
 
 using namespace lt;
 
@@ -38,6 +39,7 @@ Napi::Value alert_to_js(const Napi::Env& env, const lt::alert* a) {
             obj.Set("save_path", Napi::String::New(env, ata->params.save_path));
             obj.Set("error_code", Napi::Number::New(env, ata->error.value()));
             obj.Set("error_message", Napi::String::New(env, ata->error.message()));
+            obj.Set("torrent", WrapTorrentHandle(env, ata->handle));
             break;
         }
         case lt::torrent_need_cert_alert::alert_type: {

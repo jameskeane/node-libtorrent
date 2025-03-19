@@ -7,7 +7,8 @@
           "libtorrent.cc",
           "src/session.cc",
           "src/alert.cc",
-          "src/entry.cc"
+          "src/entry.cc",
+          "src/torrent_handle.cc",
         ],
 
       "cflags_cc": [

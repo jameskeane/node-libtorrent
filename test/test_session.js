@@ -35,8 +35,7 @@ describe("libtorrent.session", () => {
 
     it("allows you to set the alert_notify function", (t, done) => {
         session = lt.session({
-            listen_interfaces: '0.0.0.0:6881',
-            enable_dht: true,
+            listen_interfaces: '127.0.0.1:6881',
             alert_mask: 0xffffffff
         });
 
