@@ -21,6 +21,16 @@ declare module '@pulseapp/node-libtorrent' {
         item: Entry;
     }
 
+    interface DHTMutableItemAlert extends GenericAlert {
+        what: 'dht_mutable_item';
+        pubKey: Buffer;
+        sig: Buffer;
+        seq: number;
+        salt: string;
+        authoritative: boolean;
+        item: Entry;
+    }
+
     interface AddTorentAlert extends GenericAlert {
         what: 'add_torrent';
         info_hashes: Buffer;
@@ -34,6 +44,7 @@ declare module '@pulseapp/node-libtorrent' {
         | AddTorentAlert
         | DHTPutAlert 
         | DHTImmutableItemAlert 
+        | DHTMutableItemAlert
         | GenericAlert<'dht_bootstrap'>
 
     type SettingsPack = {

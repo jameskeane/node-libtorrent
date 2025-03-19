@@ -85,7 +85,7 @@ Napi::Value alert_to_js(const Napi::Env& env, const lt::alert* a) {
         case lt::dht_mutable_item_alert::alert_type: {
             auto* dmia = static_cast<const lt::dht_mutable_item_alert*>(a);
             obj.Set("key", Napi::Buffer<char>::Copy(env, dmia->key.data(), dmia->key.size()));
-            obj.Set("signature", Napi::Buffer<char>::Copy(env, dmia->signature.data(), dmia->signature.size()));
+            obj.Set("sig", Napi::Buffer<char>::Copy(env, dmia->signature.data(), dmia->signature.size()));
             obj.Set("seq", Napi::Number::New(env, dmia->seq));
             obj.Set("salt", Napi::String::New(env, dmia->salt));
             obj.Set("authoritative", Napi::Boolean::New(env, dmia->authoritative));
