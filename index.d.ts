@@ -38,6 +38,7 @@ declare module '@pulseapp/node-libtorrent' {
         save_path: string;
         error_code: number;
         error_message: string;
+        torrent: TorrentHandle;
     }
 
     type Alert = 
@@ -88,6 +89,10 @@ declare module '@pulseapp/node-libtorrent' {
         default_priority = 4,
         low_priority = 1,
         top_priority = 7,
+    }
+
+    class TorrentHandle {
+        info_hashes(): Buffer;
     }
 
     type torrent_extension_t = any; // todo

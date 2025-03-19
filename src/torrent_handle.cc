@@ -14,7 +14,7 @@ Napi::Object WrapTorrentHandle(Napi::Env env, const libtorrent::torrent_handle& 
 
 Napi::Object TorrentHandle::Init(Napi::Env env, Napi::Object exports) {
     Napi::Function func = DefineClass(env, "TorrentHandle", {
-        InstanceMethod("info_hash", &TorrentHandle::GetInfoHash),
+        InstanceMethod("info_hashes", &TorrentHandle::GetInfoHash),
         // InstanceMethod("getName", &TorrentHandle::GetName),
         // InstanceMethod("isPaused", &TorrentHandle::IsPaused),
         // InstanceMethod("pause", &TorrentHandle::Pause),
