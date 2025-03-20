@@ -72,5 +72,8 @@ describe('libtorrent.load_torrent', () => {
 
         session.async_add_torrent({...params, 'save_path': '.'});
     });
+
+    it('supports ti strings', (t, done) => {
+    });
 });
 

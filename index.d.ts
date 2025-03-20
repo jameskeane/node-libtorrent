@@ -9,20 +9,26 @@ declare module '@pulseapp/node-libtorrent' {
         timestamp: number;
     }
 
-    interface DHTPutAlert extends GenericAlert {
-        what: 'dht_put';
-        target: Buffer;
-        num_success: number;
+    interface MetaDataReceivedAlert extends GenericAlert<'metadata_received'> {
+        torrent_name: string;
+        handle: TorrentHandle;
     }
 
-    interface DHTImmutableItemAlert extends GenericAlert {
-        what: 'dht_immutable_item';
+    interface DHTPutAlert extends GenericAlert<'dht_put'> {
+        target: Buffer;
+        num_success: number;
+        public_key: Buffer;
+        salt: string;
+        signature: Buffer;
+        seq: number;
+    }
+
+    interface DHTImmutableItemAlert extends GenericAlert<'dht_immutable_item'> {
         target: Buffer;
         item: Entry;
     }
 
-    interface DHTMutableItemAlert extends GenericAlert {
-        what: 'dht_mutable_item';
+    interface DHTMutableItemAlert extends GenericAlert<'dht_mutable_item'> {
         key: Buffer;
         sig: Buffer;
         seq: number;
@@ -31,8 +37,7 @@ declare module '@pulseapp/node-libtorrent' {
         item: Entry;
     }
 
-    interface AddTorentAlert extends GenericAlert {
-        what: 'add_torrent';
+    interface AddTorentAlert extends GenericAlert<'add_torrent'> {
         info_hashes: Buffer;
         name: string;
         save_path: string;
@@ -43,6 +48,7 @@ declare module '@pulseapp/node-libtorrent' {
 
     type Alert = 
         | AddTorentAlert
+        | MetaDataReceivedAlert
         | DHTPutAlert 
         | DHTImmutableItemAlert 
         | DHTMutableItemAlert
@@ -61,8 +67,10 @@ declare module '@pulseapp/node-libtorrent' {
         allow_multiple_connections_per_ip?: boolean,
         enable_natpmp?: boolean,
         enable_lsd?: boolean,
+        enable_upnp?: boolean,
         dht_restrict_routing_ips?: boolean,
         dht_restrict_search_ips?: boolean,
+        outgoing_port?: number,
         // todo
     };
 
@@ -105,15 +113,21 @@ declare module '@pulseapp/node-libtorrent' {
         top_priority = 7,
     }
 
+    class TorrentInfo {
+        files(): number;
+        toBuffer(): Buffer;
+    }
+
     class TorrentHandle {
         info_hashes(): Buffer;
+        torrent_file(): TorrentInfo;
+        flags(): number;
     }
 
     type torrent_extension_t = any; // todo
 
-    type TorrentInfo = any; // todo
     type add_torrent_params = {
-        ti?: TorrentInfo,
+        ti?: TorrentInfo|string,
         trackers? : string[],
         tracker_tiers?: number[],
         dht_nodes?: [string, number][],

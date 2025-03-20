@@ -1,11 +1,13 @@
 #include "add_torrent_params.h"
+#include "torrent_info.h"
+
 #include <libtorrent/add_torrent_params.hpp>
 #include <libtorrent/load_torrent.hpp>
 
 using namespace lt;
 
 
-Napi::Object add_torrent_params_to_js(Napi::Env env, lt::add_torrent_params params) {
+Napi::Value add_torrent_params_to_js(Napi::Env env, lt::add_torrent_params params) {
     Napi::Object obj = Napi::Object::New(env);
     
     // Add properties to the object
@@ -22,12 +24,13 @@ Napi::Object add_torrent_params_to_js(Napi::Env env, lt::add_torrent_params para
         // Create a heap-allocated copy of the torrent_info
         lt::torrent_info* tiCopy = new lt::torrent_info(*params.ti);
 
-        // Create an external wrapper for the torrent_info pointer with a finalizer to clean up
-        auto tiExternal = Napi::External<lt::torrent_info>::New(env, tiCopy, [](Napi::Env, lt::torrent_info* data) {
-            // todo causes a double free error
-            // delete data; // Clean up the allocated torrent_info when the JS object is garbage collected
-        });
-        obj.Set("ti", tiExternal);
+        try {
+            obj.Set("ti", WrapTorrentInfo(env, *tiCopy));
+        } catch (const std::exception& e) {
+            Napi::Error::New(env, std::string("Failed to wrap torrent info: ") + e.what())
+                .ThrowAsJavaScriptException();
+            return env.Undefined();
+        }
     }
     // // Handle trackers
     // if (!params.trackers.empty()) {

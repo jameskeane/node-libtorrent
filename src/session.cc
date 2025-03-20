@@ -1,6 +1,7 @@
 #include "session.h"
 #include "alert.h"
 #include "entry.h"
+#include "torrent_info.h"
 
 #include <libtorrent/session.hpp>
 #include <libtorrent/load_torrent.hpp>
@@ -227,10 +228,39 @@ Napi::Value Session::AsyncAddTorrent(const Napi::CallbackInfo& info) {
     }
 
     // Handle ti (torrent info) if provided
-    if (torrentParams.Has("ti") && torrentParams.Get("ti").IsExternal()) {
-        // Assuming ti is an external pointer to a torrent_info object
-        lt::torrent_info* ti = torrentParams.Get("ti").As<Napi::External<lt::torrent_info>>().Data();
-        params.ti = std::shared_ptr<lt::torrent_info>(ti);
+    if (torrentParams.Has("ti")) {
+        Napi::Value tiValue = torrentParams.Get("ti");
+        
+        // Check if ti is a string (file path)
+        if (tiValue.IsString()) {
+            std::string torrent_file = tiValue.As<Napi::String>().Utf8Value();
+            try {
+                params.ti = std::make_shared<lt::torrent_info>(torrent_file);
+            } catch (const std::exception& e) {
+                Napi::Error::New(env, "Failed to load torrent file: " + std::string(e.what())).ThrowAsJavaScriptException();
+                return env.Null();
+            }
+        }
+        // Otherwise it must be a TorrentInfo object
+        else if (tiValue.IsObject()) {
+            Napi::Object tiNode = tiValue.As<Napi::Object>();
+            if (!tiNode.InstanceOf(TorrentInfo::constructor.Value())) {
+                Napi::TypeError::New(env, "ti must be either a string path or a TorrentInfo object").ThrowAsJavaScriptException();
+                return env.Null();
+            }
+
+            TorrentInfo* tiObj = Napi::ObjectWrap<TorrentInfo>::Unwrap(tiNode);
+            if (!tiObj) {
+                Napi::TypeError::New(env, "Invalid TorrentInfo object").ThrowAsJavaScriptException();
+                return env.Null();
+            }
+
+            params.ti = std::shared_ptr<lt::torrent_info>(new lt::torrent_info(*tiObj->GetTorrentInfo()));
+        } 
+        else {
+            Napi::TypeError::New(env, "ti must be either a string path or a TorrentInfo object").ThrowAsJavaScriptException();
+            return env.Null();
+        }
     }
 
     // Handle info hash

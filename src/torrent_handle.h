@@ -14,6 +14,9 @@ public:
 private:
     // Instance methods
     Napi::Value GetInfoHash(const Napi::CallbackInfo& info);
+    Napi::Value GetTorrentFlags(const Napi::CallbackInfo& info);
+    Napi::Value GetTorrentInfo(const Napi::CallbackInfo& info);
+
     // Napi::Value GetName(const Napi::CallbackInfo& info);
     // Napi::Value IsPaused(const Napi::CallbackInfo& info);
     // Napi::Value Pause(const Napi::CallbackInfo& info);

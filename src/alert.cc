@@ -100,6 +100,13 @@ Napi::Value alert_to_js(const Napi::Env& env, const lt::alert* a) {
             break;
         }
 
+        case lt::metadata_received_alert::alert_type: {
+            auto* mra = static_cast<const lt::metadata_received_alert*>(a);
+            obj.Set("torrent_name", Napi::String::New(env, mra->torrent_name()));
+            obj.Set("handle", WrapTorrentHandle(env, mra->handle));
+            break;
+        }
+
         // case lt::dht_announce_alert::alert_type: {
         //     auto* daa = static_cast<const lt::dht_announce_alert*>(a);
         //     obj.Set("ip", Napi::String::New(env, daa->ip.to_string()));

@@ -10,6 +10,7 @@
           "src/entry.cc",
           "src/torrent_handle.cc",
           "src/add_torrent_params.cc",
+          "src/torrent_info.cc",
         ],
 
       "cflags_cc": [
